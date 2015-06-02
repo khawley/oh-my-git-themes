@@ -26,6 +26,8 @@
 : ${omg_finally:=''}
 : ${omg_use_color_off:=false}
 
+PROMPT=' %{$fg[magenta]%}%*%  %{$terminfo[bold]$fg_bold[blue]%}%n@%m%  %{${fg_bold[green]}%}%~%  $(before_build_prompt)%{$fg_bold[green]%}
+%{${fg_bold[$CARETCOLOR]}%}»%{${reset_color}%} '
 
 #load colors
 autoload colors && colors
@@ -44,23 +46,52 @@ yellow=$BOLD_YELLOW
 violet=$CYAN
 reset=$RESET
 
+ZSH_THEME_GIT_PROMPT_PREFIX="%{$fg[yellow]%}‹"
+ZSH_THEME_GIT_PROMPT_SUFFIX=" %{$reset_color%}"
+ZSH_THEME_GIT_PROMPT_DIRTY="%{$fg[red]%}*%{$fg[yellow]%}›"
+ZSH_THEME_GIT_PROMPT_CLEAN="%{$fg[yellow]%}›"
 
-PROMPT=' %{$fg[magenta]%}%*%  %{$terminfo[bold]$fg_bold[blue]%}%n@%m%  %{${fg_bold[green]}%}%~%  $(build_prompt)%{$fg_bold[green]%}
-%{${fg_bold[$CARETCOLOR]}%}»%{${reset_color}%} '
-# RPROMPT='%{$reset_color%}%T %{$fg_bold[white]%} %n@%m%{$reset_color%}'
 
-# VIRTUAL_ENV_DISABLE_PROMPT=true
-# function omg_prompt_callback() {
-#     if [ -n "${VIRTUAL_ENV}" ]; then
-#         echo "\e[0;31m(`basename ${VIRTUAL_ENV}`)\e[0m "
-#     fi
-# }
+VIRTUAL_ENV_DISABLE_PROMPT=true
+function omg_prompt_callback() {
+    virtualenv=`basename "$VIRTUAL_ENV"`
+
+    if [ -n "${VIRTUAL_ENV}" ]; then
+        echo "\e[0;31m($virtualenv)\e[0m "
+    fi
+}
+
+function before_build_prompt {
+    # intercept before build_prompt
+    # check if is repo & $enabled is false
+    # if is repo, check for 'hide-dirty', set if not already
+    # then, finally, build prompt with git_prompt_info, and not anything more complex
+
+    #vastly speeds up git repsonse times for large repos
+
+    local enabled=`git config --local --get oh-my-git.enabled`
+    local info=`git symbolic-ref HEAD 2> /dev/null`
+
+    if [[ ${enabled} == false || -z $info ]]; then
+        if [[ $info ]]; then
+            dirty=$(command git config --local --get oh-my-zsh.hide-dirty)
+            if [[ "$dirty" != "1" ]]; then
+                $(command git config --local oh-my-zsh.hide-dirty 1)
+            fi
+        fi
+        echo $(git_prompt_info)
+        exit;
+    else
+        build_prompt
+    fi
+
+}
 
 function custom_build_prompt {
     local enabled=${1}
     local current_commit_hash=${2}
     local is_a_git_repo=${3}
-    local current_branch=$4
+    local current_branch=${4}
     local detached=${5}
     local just_init=${6}
     local has_upstream=${7}
@@ -85,7 +116,7 @@ function custom_build_prompt {
 
     local prompt=""
 
-    if [[ $is_a_git_repo == true && $simple != true ]]; then
+    if [[ $is_a_git_repo == true && $enabled != simple ]]; then
         echo -n "${reset}[ "
         enrich $is_a_git_repo $omg_is_a_git_repo_symbol $violet
         enrich $has_stashes $omg_has_stashes_symbol $orange
@@ -141,13 +172,6 @@ function custom_build_prompt {
             prompt="${prompt} ${orange}[${tag_at_current_commit}]${reset}"
         fi
         prompt="${prompt}      ${reset}]"
-    else
-        if [[ $is_a_git_repo == true && $simple == true ]]; then
-            prompt="${prompt}${reset}[ ${yellow}‹${current_branch}›${reset} ]"
-        fi
-
-
-
     fi
 
     if [[ $omg_two_lines == true && $is_a_git_repo == true ]]; then
