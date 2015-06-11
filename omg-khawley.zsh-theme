@@ -27,7 +27,8 @@
 : ${omg_use_color_off:=false}
 
 PROMPT=' %{$fg[magenta]%}%*%  %{$terminfo[bold]$fg_bold[blue]%}%n@%m%  %{${fg_bold[green]}%}%~%  $(before_build_prompt)%{$fg_bold[green]%}
-%{${fg_bold[$CARETCOLOR]}%}»%{${reset_color}%} '
+
+%{${fg_bold[blue]}%}»%{${reset_color}%} '
 
 #load colors
 autoload colors && colors
@@ -54,10 +55,11 @@ ZSH_THEME_GIT_PROMPT_CLEAN="%{$fg[yellow]%}›"
 
 VIRTUAL_ENV_DISABLE_PROMPT=true
 function omg_prompt_callback() {
+    # check if using a virtualenv, echo the name if found
     virtualenv=`basename "$VIRTUAL_ENV"`
 
     if [ -n "${VIRTUAL_ENV}" ]; then
-        echo "\e[0;31m($virtualenv)\e[0m "
+        echo "($virtualenv) "
     fi
 }
 
@@ -67,19 +69,26 @@ function before_build_prompt {
     # if is repo, check for 'hide-dirty', set if not already
     # then, finally, build prompt with git_prompt_info, and not anything more complex
 
-    #vastly speeds up git repsonse times for large repos
+    # echo virtualenv
+    echo -n "${orange}$(omg_prompt_callback)"
+
 
     local enabled=`git config --local --get oh-my-git.enabled`
     local info=`git symbolic-ref HEAD 2> /dev/null`
 
-    if [[ ${enabled} == false || -z $info ]]; then
+    #vastly speeds up git repsonse times for large repos
+    if [[ ${enabled} == simple || -z $info ]]; then
         if [[ $info ]]; then
             dirty=$(command git config --local --get oh-my-zsh.hide-dirty)
             if [[ "$dirty" != "1" ]]; then
                 $(command git config --local oh-my-zsh.hide-dirty 1)
             fi
         fi
-        echo $(git_prompt_info)
+        echo "${yellow}$(git_prompt_info)"
+        exit;
+
+    # if don't want any git related stats, even branch name, can completely disable
+    elif [[ ${enabled} == false ]]; then
         exit;
     else
         build_prompt
@@ -179,7 +188,6 @@ function custom_build_prompt {
     else
         break=''
     fi
-
     echo "${prompt}${reset}${break}${omg_finally}"
 }
 
