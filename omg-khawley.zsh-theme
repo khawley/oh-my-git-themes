@@ -27,7 +27,6 @@
 : ${omg_use_color_off:=false}
 
 PROMPT=' %{$fg[magenta]%}%*%  %{$terminfo[bold]$fg_bold[blue]%}%n@%m%  %{${fg_bold[green]}%}%~%  $(before_build_prompt)%{$fg_bold[green]%}
-
 %{${fg_bold[blue]}%}»%{${reset_color}%} '
 
 #load colors
