@@ -1,3 +1,5 @@
+#! /bin/sh
+
 # Symbols
 : ${omg_is_a_git_repo_symbol:='❤'}
 : ${omg_has_untracked_files_symbol:='∿'}
@@ -76,8 +78,8 @@ function before_build_prompt {
     local info=`git symbolic-ref HEAD 2> /dev/null`
 
     #vastly speeds up git repsonse times for large repos
-    if [[ ${enabled} == simple || -z $info ]]; then
-        if [[ $info ]]; then
+    if [[ ${enabled} == simple && -z $info ]]; then
+        if [ $info ]; then
             dirty=$(command git config --local --get oh-my-zsh.hide-dirty)
             if [[ "$dirty" != "1" ]]; then
                 $(command git config --local oh-my-zsh.hide-dirty 1)
