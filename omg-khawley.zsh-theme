@@ -75,17 +75,15 @@ function before_build_prompt {
 
 
     local enabled=`git config --local --get oh-my-git.enabled`
-    local info=`git symbolic-ref HEAD 2> /dev/null`
 
     #vastly speeds up git repsonse times for large repos
-    if [[ ${enabled} == simple && -z $info ]]; then
-        if [ $info ]; then
-            dirty=$(command git config --local --get oh-my-zsh.hide-dirty)
-            if [[ "$dirty" != "1" ]]; then
-                $(command git config --local oh-my-zsh.hide-dirty 1)
-            fi
-        fi
-        echo "${yellow}$(git_prompt_info)"
+    if [[ ${enabled} == simple ]]; then
+        # will echo the current branch name.  nothing else
+        # this is stolen from git_prompt_info from base oh-my-zsh
+        ref=$(command git symbolic-ref HEAD 2> /dev/null) || \
+        ref=$(command git rev-parse --short HEAD 2> /dev/null) || return 0
+
+        echo -n "${yellow}‹${ref#refs/heads/}›"
         exit;
 
     # if don't want any git related stats, even branch name, can completely disable
