@@ -1,5 +1,10 @@
 #! /bin/sh
 
+if [ -z ${CARETCOLOR} ]; then 
+    # not set, use light blue (cyan)
+    CARETCOLOR="cyan";
+fi
+
 # Symbols
 : ${omg_is_a_git_repo_symbol:='❤'}
 : ${omg_has_untracked_files_symbol:='∿'}
@@ -28,8 +33,9 @@
 : ${omg_finally:=''}
 : ${omg_use_color_off:=false}
 
-PROMPT=' %{$fg[magenta]%}%*%  %{$terminfo[bold]$fg_bold[blue]%}%n@%m%  %{${fg_bold[green]}%}%~%  $(before_build_prompt)%{$fg_bold[green]%}
-%{${fg_bold[blue]}%}»%{${reset_color}%} '
+
+PROMPT=' %{$fg[magenta]%}%*%  %{$terminfo[bold]${fg_bold[$CARETCOLOR]}%}%n@%m%  %{${fg_bold[green]}%}%~%  $(before_build_prompt)%{$fg_bold[green]%}
+%{${fg_bold[$CARETCOLOR]}%}»%{${reset_color}%} '
 
 #load colors
 autoload colors && colors
