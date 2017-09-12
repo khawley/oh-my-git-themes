@@ -79,24 +79,28 @@ function before_build_prompt {
     # echo virtualenv
     echo -n "${orange}$(omg_prompt_callback)"
 
+    if [[ $is_a_git_repo == true ]];
+    then
+        local enabled=`git config --get oh-my-git.enabled`
 
-    local enabled=`git config --get oh-my-git.enabled`
+        #vastly speeds up git repsonse times for large repos
+        if [[ ${enabled} == simple ]]; then
+            # will echo the current branch name.  nothing else
+            # this is stolen from git_prompt_info from base oh-my-zsh
+            ref=$(command git symbolic-ref HEAD 2> /dev/null) || \
+            ref=$(command git rev-parse --short HEAD 2> /dev/null) || return 0
 
-    #vastly speeds up git repsonse times for large repos
-    if [[ ${enabled} == simple ]]; then
-        # will echo the current branch name.  nothing else
-        # this is stolen from git_prompt_info from base oh-my-zsh
-        ref=$(command git symbolic-ref HEAD 2> /dev/null) || \
-        ref=$(command git rev-parse --short HEAD 2> /dev/null) || return 0
+            echo -n "${yellow}‹${ref#refs/heads/}›"
+            exit;
 
-        echo -n "${yellow}‹${ref#refs/heads/}›"
-        exit;
-
-    # if don't want any git related stats, even branch name, can completely disable
-    elif [[ ${enabled} == false ]]; then
-        exit;
+        # if don't want any git related stats, even branch name, can completely disable
+        elif [[ ${enabled} == false ]]; then
+            exit;
+        else
+            build_prompt
+        fi
     else
-        build_prompt
+        exit;
     fi
 
 }
