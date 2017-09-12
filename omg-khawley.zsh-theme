@@ -197,13 +197,13 @@ function custom_build_prompt {
 }
 
 # continuously updated timestamp for every executed command ☺
-function schedprompt() {
-  emulate -L zsh
-  zmodload -i zsh/sched
-  integer i=${"${(@)zsh_scheduled_events#*:*:}"[(I)schedprompt]}
-  (( i )) && sched -$i
-  zle && zle reset-prompt
-  # sched +1 schedprompt
-}
+# function schedprompt() {
+#   emulate -L zsh
+#   zmodload -i zsh/sched
+#   integer i=${"${(@)zsh_scheduled_events#*:*:}"[(I)schedprompt]}
+#   (( i )) && sched -$i
+#   zle && zle reset-prompt
+#   # sched +1 schedprompt
+# }
 
-schedprompt
+# schedprompt
