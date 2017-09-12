@@ -80,7 +80,7 @@ function before_build_prompt {
     echo -n "${orange}$(omg_prompt_callback)"
 
 
-    local enabled=`git config --local --get oh-my-git.enabled`
+    local enabled=`git config --get oh-my-git.enabled`
 
     #vastly speeds up git repsonse times for large repos
     if [[ ${enabled} == simple ]]; then
@@ -126,7 +126,7 @@ function custom_build_prompt {
     local will_rebase=${22}
     local has_stashes=${23}
 
-    local simple=`git config --local --get oh-my-git.simple`
+    local simple=`git config --get oh-my-git.simple`
 
     local prompt=""
 
@@ -197,13 +197,13 @@ function custom_build_prompt {
 }
 
 # continuously updated timestamp for every executed command ☺
-# function schedprompt() {
-#   emulate -L zsh
-#   zmodload -i zsh/sched
-#   integer i=${"${(@)zsh_scheduled_events#*:*:}"[(I)schedprompt]}
-#   (( i )) && sched -$i
-#   zle && zle reset-prompt
-#   sched +1 schedprompt
-# }
+function schedprompt() {
+  emulate -L zsh
+  zmodload -i zsh/sched
+  integer i=${"${(@)zsh_scheduled_events#*:*:}"[(I)schedprompt]}
+  (( i )) && sched -$i
+  zle && zle reset-prompt
+  sched +1 schedprompt
+}
 
-# schedprompt
+schedprompt
