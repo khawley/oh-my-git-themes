@@ -203,7 +203,7 @@ function schedprompt() {
   integer i=${"${(@)zsh_scheduled_events#*:*:}"[(I)schedprompt]}
   (( i )) && sched -$i
   zle && zle reset-prompt
-  sched +1 schedprompt
+  # sched +1 schedprompt
 }
 
 schedprompt
